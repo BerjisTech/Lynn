@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager screenPager;
@@ -72,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference();
-        UID = mAuth.getCurrentUser().getUid();
         dbRef.keepSynced(true);
 
         // when this activity is about to be launch we need to check if its openened before or not
@@ -226,15 +226,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void userState() {
-        dbRef.child("Users").child(UID).child("user_type").addListenerForSingleValueEvent(new ValueEventListener() {
+        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+        dbRef.child("Users").child(UID).child("user_name").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    Intent mainActivity = new Intent(getApplicationContext(), FeedActivity.class);
+                if (dataSnapshot.exists()) {
+                    Intent mainActivity = new Intent(getApplicationContext(), ModelsActivity.class);
                     startActivity(mainActivity);
                     finish();
-                }else{
-                    Intent mainActivity = new Intent(getApplicationContext(), AccountType.class);
+                } else {
+                    Intent mainActivity = new Intent(getApplicationContext(), EditProfileActivity.class);
                     startActivity(mainActivity);
                     finish();
                 }

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "17659420767-stcv6bjth6sbhcbh0ob6aj3rchqpbdu4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tech.berjis.lynn",
+            "certificate_hash": "ec6c42a9cc63fcbe98da893fd5a5faf3391707db"
+          }
+        },
+        {
           "client_id": "17659420767-vdckq9qpi835d4qqeadbgoqq5m6lpd6s.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
