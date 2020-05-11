@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/userImage"
+        android:id="@+id/modelImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
@@ -20,29 +20,33 @@
         android:layout_height="40dp"
         android:alpha="0.8"
         android:background="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="@id/userImage"
-        app:layout_constraintEnd_toEndOf="@id/userImage"
-        app:layout_constraintStart_toStartOf="@id/userImage" />
+        app:layout_constraintBottom_toBottomOf="@id/modelImage"
+        app:layout_constraintEnd_toEndOf="@id/modelImage"
+        app:layout_constraintStart_toStartOf="@id/modelImage" />
 
     <com.vanniktech.emoji.EmojiTextView
-        android:id="@+id/userName"
+        android:id="@+id/modelName"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:gravity="start|center"
         android:text="@string/username"
         android:textColor="@color/colorWhite"
-        app:layout_constraintBottom_toBottomOf="@id/userImage"
-        app:layout_constraintEnd_toEndOf="@id/userImage"
-        app:layout_constraintStart_toStartOf="@id/userImage"
+        app:layout_constraintBottom_toBottomOf="@id/modelImage"
+        app:layout_constraintEnd_toEndOf="@id/modelImage"
+        app:layout_constraintStart_toStartOf="@id/modelImage"
         app:layout_constraintTop_toTopOf="@id/bottomView" />
 
     <com.vanniktech.emoji.EmojiTextView
-        android:id="@+id/userDescription"
+        android:id="@+id/modelDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/userImage" />
+        app:layout_constraintTop_toBottomOf="@id/modelImage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

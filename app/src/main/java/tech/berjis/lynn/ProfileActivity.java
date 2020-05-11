@@ -61,7 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, FeedActivity.class));
+                startActivity(new Intent(ProfileActivity.this, ModelsActivity.class));
             }
         });
         chats.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void loaduserdata(){
         newUserState();
-        dbRef.child("Users").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("Users").child(UID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String alias = dataSnapshot.child("user_name").getValue().toString();

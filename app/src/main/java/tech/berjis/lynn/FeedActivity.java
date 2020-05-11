@@ -2,6 +2,7 @@ package tech.berjis.lynn;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +28,9 @@ public class FeedActivity extends AppCompatActivity {
 
     ImageView home, chats, profile, camera, notifications;
     RecyclerView postsRecycler;
+    NestedScrollView nestedScroll;
+    ImageView modelImage;
+    EmojiTextView modelDescription, modelName;
 
     FirebaseAuth mAuth;
     DatabaseReference dbRef;
@@ -46,6 +52,13 @@ public class FeedActivity extends AppCompatActivity {
         camera = findViewById(R.id.camera);
         notifications = findViewById(R.id.notifications);
         postsRecycler = findViewById(R.id.postsRecycler);
+        nestedScroll = findViewById(R.id.nestedScroll);
+        modelImage = findViewById(R.id.modelImage);
+        modelName = findViewById(R.id.modelName);
+        modelDescription = findViewById(R.id.modelDescription);
+
+        postsRecycler.setFocusable(false);
+        modelImage.requestFocus();
 
         listData = new ArrayList<>();
         postsRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
@@ -56,18 +69,9 @@ public class FeedActivity extends AppCompatActivity {
         Intent modelIntent = getIntent();
         Bundle modelBundle = modelIntent.getExtras();
         String model = modelBundle.getString("model");
-        prependModelCard(model);
-        //loadPosts(model);
+        loadModelData(model);
+        loadPosts(model);
         unloggedState(model);
-    }
-
-    private void prependModelCard(String model) {
-        listData.add(new Posts(23452345, "free", "dgfdfgsdfg", model, "pbulished", "dfgsdfg", "photo"));
-
-        postsAdapter = new PostsAdapter(FeedActivity.this, listData, "card");
-        postsAdapter.notifyDataSetChanged();
-        postsRecycler.setAdapter(postsAdapter);
-
     }
 
     private void unloggedState(final String model) {
@@ -106,6 +110,7 @@ public class FeedActivity extends AppCompatActivity {
             home.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    startActivity(new Intent(FeedActivity.this, ModelsActivity.class));
                 }
             });
             chats.setOnClickListener(new View.OnClickListener() {
@@ -157,6 +162,32 @@ public class FeedActivity extends AppCompatActivity {
                     postsAdapter = new PostsAdapter(FeedActivity.this, listData, "post");
                     postsAdapter.notifyDataSetChanged();
                     postsRecycler.setAdapter(postsAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadModelData(String model) {
+        dbRef.child("Users").child(model).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String username = dataSnapshot.child("user_name").getValue().toString();
+                String userimage = dataSnapshot.child("user_image").getValue().toString();
+                String description = dataSnapshot.child("user_description").getValue().toString();
+
+                if (!userimage.equals("")) {
+                    Picasso.get().load(userimage).into(modelImage);
+                }
+                if (!username.equals("")) {
+                    modelName.setText(username);
+                }
+                if (!description.equals("")) {
+                    modelDescription.setText(username);
                 }
             }
 

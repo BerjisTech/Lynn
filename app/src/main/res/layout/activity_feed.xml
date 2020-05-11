@@ -59,8 +59,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/postsRecycler"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
@@ -69,7 +69,70 @@
         app:layout_constraintBottom_toTopOf="@+id/chats"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pageTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/pageTitle">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/modelImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:src="@drawable/model_demo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:id="@+id/bottomView"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:alpha="0.8"
+                android:background="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/modelImage"
+                app:layout_constraintEnd_toEndOf="@id/modelImage"
+                app:layout_constraintStart_toStartOf="@id/modelImage" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/modelName"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="start|center"
+                android:text="@string/username"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintBottom_toBottomOf="@id/modelImage"
+                app:layout_constraintEnd_toEndOf="@id/modelImage"
+                app:layout_constraintStart_toStartOf="@id/modelImage"
+                app:layout_constraintTop_toTopOf="@id/bottomView" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/modelDescription"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/modelImage" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/postsRecycler"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/modelDescription" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
 
     <ImageView
