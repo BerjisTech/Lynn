@@ -1,11 +1,14 @@
 package tech.berjis.lynn;
 
 import android.content.Context;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -21,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> implements View.OnCreateContextMenuListener {
 
     private Context mContext;
     private List<Chat> listData;
@@ -49,6 +52,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         hideViews(ld, holder);
 
+        holder.mView.setOnCreateContextMenuListener(this);
+
         if (ld.getSender().equals(UID)) {
             loadSenderView(ld, holder);
         }
@@ -60,6 +65,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return listData.size();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        menu.add(0, v.getId(), 0, "Delete")
+                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Toast.makeText(mContext, "Deleted", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+        menu.add(0, v.getId(), 0, "Reply")
+                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return false;
+            }
+        });
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -104,10 +128,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         holder.senderChatTime.setText(ago);
 
-        if (ld.getType().equals("text")){
+        if (ld.getType().equals("text")) {
             loadSenderText(ld, holder);
         }
-        if (ld.getType().equals("photo")){
+        if (ld.getType().equals("photo")) {
             loadSenderImage(ld, holder);
         }
     }
@@ -121,10 +145,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         holder.receiverChatTime.setText(ago);
 
-        if (ld.getType().equals("text")){
+        if (ld.getType().equals("text")) {
             loadReceiverText(ld, holder);
         }
-        if (ld.getType().equals("photo")){
+        if (ld.getType().equals("photo")) {
             loadReceiverImage(ld, holder);
         }
     }
