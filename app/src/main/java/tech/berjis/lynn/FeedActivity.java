@@ -46,14 +46,31 @@ public class FeedActivity extends AppCompatActivity {
         camera = findViewById(R.id.camera);
         notifications = findViewById(R.id.notifications);
         postsRecycler = findViewById(R.id.postsRecycler);
-        unloggedState();
 
         listData = new ArrayList<>();
         postsRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        loadPosts();
+        getModel();
     }
 
-    private void unloggedState() {
+    private void getModel() {
+        Intent modelIntent = getIntent();
+        Bundle modelBundle = modelIntent.getExtras();
+        String model = modelBundle.getString("model");
+        prependModelCard(model);
+        //loadPosts(model);
+        unloggedState(model);
+    }
+
+    private void prependModelCard(String model) {
+        listData.add(new Posts(23452345, "free", "dgfdfgsdfg", model, "pbulished", "dfgsdfg", "photo"));
+
+        postsAdapter = new PostsAdapter(FeedActivity.this, listData, "card");
+        postsAdapter.notifyDataSetChanged();
+        postsRecycler.setAdapter(postsAdapter);
+
+    }
+
+    private void unloggedState(final String model) {
         if (mAuth.getCurrentUser() == null) {
             home.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -94,7 +111,11 @@ public class FeedActivity extends AppCompatActivity {
             chats.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(FeedActivity.this, DMsActivity.class));
+                    Intent modelIntent = new Intent(FeedActivity.this, DMActivity.class);
+                    Bundle modelBundle = new Bundle();
+                    modelBundle.putString("model", model);
+                    modelIntent.putExtras(modelBundle);
+                    startActivity(modelIntent);
                 }
             });
             profile.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +139,7 @@ public class FeedActivity extends AppCompatActivity {
         }
     }
 
-    private void loadPosts() {
+    private void loadPosts(final String model) {
         listData.clear();
         dbRef.child("Posts").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -126,13 +147,14 @@ public class FeedActivity extends AppCompatActivity {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot postSnapshots : dataSnapshot.getChildren()) {
                         if (postSnapshots.child("status").getValue().toString().equals("published") &&
-                                postSnapshots.child("availability").getValue().toString().equals("free")) {
+                                postSnapshots.child("availability").getValue().toString().equals("free") &&
+                                postSnapshots.child("user").getValue().toString().equals(model)) {
                             Posts posts = postSnapshots.getValue(Posts.class);
                             listData.add(posts);
                         }
                     }
                     Collections.reverse(listData);
-                    postsAdapter = new PostsAdapter(FeedActivity.this, listData);
+                    postsAdapter = new PostsAdapter(FeedActivity.this, listData, "post");
                     postsAdapter.notifyDataSetChanged();
                     postsRecycler.setAdapter(postsAdapter);
                 }

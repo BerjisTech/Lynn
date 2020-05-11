@@ -1,12 +1,18 @@
 package tech.berjis.lynn;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
+import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.List;
 
@@ -29,7 +35,22 @@ public class ModelsAdapter extends RecyclerView.Adapter<ModelsAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Models ld = listData.get(position);
+        final Models ld = listData.get(position);
+
+        if (!ld.getUser_image().equals("")) {
+            Picasso.get().load(ld.getUser_image()).into(holder.modelImage);
+        }
+        holder.modelName.setText(ld.getUser_name());
+        holder.mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent modelIntent = new Intent(mContext, FeedActivity.class);
+                Bundle modelBundle = new Bundle();
+                modelBundle.putString("model", ld.getUser_id());
+                modelIntent.putExtras(modelBundle);
+                mContext.startActivity(modelIntent);
+            }
+        });
     }
 
     @Override
@@ -38,8 +59,15 @@ public class ModelsAdapter extends RecyclerView.Adapter<ModelsAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        EmojiTextView modelName;
+        ImageView modelImage;
+        View mView;
+
         ViewHolder(@NonNull View itemView) {
             super(itemView);
+            modelName = itemView.findViewById(R.id.modelName);
+            modelImage = itemView.findViewById(R.id.modelImage);
+            mView = itemView;
         }
     }
 }

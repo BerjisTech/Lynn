@@ -40,11 +40,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     private Context mContext;
     private DatabaseReference dbRef;
     private FirebaseAuth mAuth;
-    String UID;
+    String UID, view_type;
 
-    PostsAdapter(Context mContext, List<Posts> listData) {
+    PostsAdapter(Context mContext, List<Posts> listData, String view_type) {
         this.mContext = mContext;
         this.listData = listData;
+        this.view_type = view_type;
     }
 
     @NonNull
@@ -54,22 +55,34 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         UID = mAuth.getCurrentUser().getUid();
         dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.keepSynced(true);
-        View view = LayoutInflater.from(mContext).inflate(R.layout.feed, parent, false);
+
+        View view = null;
+        if (view_type.equals("card")) {
+            view = LayoutInflater.from(mContext).inflate(R.layout.model_card, parent, false);
+        }
+        if (view_type.equals("post")) {
+            view = LayoutInflater.from(mContext).inflate(R.layout.feed, parent, false);
+        }
+
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Posts ld = listData.get(position);
+        if (view_type.equals("card")) {
+            loadUserCard(ld, holder);
+        }
+        if (view_type.equals("post")) {
+            loadUserData(ld, holder);
+            imageChecker(ld.getPost_id(), holder);
+            staticOnClicks(ld.getPost_id(), holder);
 
-        loadUserData(ld, holder);
-        imageChecker(ld.getPost_id(), holder);
-        staticOnClicks(ld.getPost_id(), holder);
-
-        if (ld.getText().equals("")) {
-            holder.postText.setVisibility(View.GONE);
-        } else {
-            holder.postText.setText(ld.getText());
+            if (ld.getText().equals("")) {
+                holder.postText.setVisibility(View.GONE);
+            } else {
+                holder.postText.setText(ld.getText());
+            }
         }
     }
 
@@ -81,7 +94,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         CircleImageView userImage;
-        EmojiTextView userName, postText;
+        EmojiTextView userName, postText, userDescription;
         TextView postTime, imageCount;
         ImageView likes, comments, postImage, cameraIcon;
         CardView imageCard;
@@ -92,6 +105,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
             userImage = itemView.findViewById(R.id.userImage);
             userName = itemView.findViewById(R.id.userName);
+            userDescription = itemView.findViewById(R.id.userDescription);
             postText = itemView.findViewById(R.id.postText);
             postTime = itemView.findViewById(R.id.postTime);
             likes = itemView.findViewById(R.id.likes);
@@ -216,6 +230,36 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 }
                 if (!username.equals("")) {
                     holder.userName.setText(username);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadUserCard(Posts ld, final ViewHolder holder) {
+        long time = ld.getTime() * 1000;
+        PrettyTime prettyTime = new PrettyTime(Locale.getDefault());
+        String ago = prettyTime.format(new Date(time));
+        holder.postTime.setText(ago);
+        dbRef.child("Users").child(ld.getUser()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String username = dataSnapshot.child("user_name").getValue().toString();
+                String userimage = dataSnapshot.child("user_image").getValue().toString();
+                String description = dataSnapshot.child("user_description").getValue().toString();
+
+                if (!userimage.equals("")) {
+                    Picasso.get().load(userimage).into(holder.userImage);
+                }
+                if (!username.equals("")) {
+                    holder.userName.setText(username);
+                }
+                if (!description.equals("")) {
+                    holder.userDescription.setText(username);
                 }
             }
 
