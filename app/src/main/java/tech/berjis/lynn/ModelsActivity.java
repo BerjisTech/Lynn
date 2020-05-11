@@ -4,9 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -26,6 +28,7 @@ public class ModelsActivity extends AppCompatActivity {
     ImageView home, chats, profile, camera, notifications;
 
     RecyclerView modelsRecycler;
+    SwipeRefreshLayout modelsRefresh;
     List<Models> modelsList;
     ModelsAdapter modelsAdapter;
 
@@ -42,6 +45,7 @@ public class ModelsActivity extends AppCompatActivity {
         dbRef.keepSynced(true);
 
         modelsRecycler = findViewById(R.id.modelsRecycler);
+        modelsRefresh = findViewById(R.id.modelsRefresh);
         modelsList = new ArrayList<>();
 
         home = findViewById(R.id.home);
@@ -53,6 +57,24 @@ public class ModelsActivity extends AppCompatActivity {
 
         modelsRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         loadModels();
+
+        modelsRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                modelsList.clear();
+                loadModels();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        modelsRefresh.setRefreshing(false);
+                    }
+                }, 2000);
+            }
+        });
+        modelsRefresh.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
     }
 
     private void unloggedState() {

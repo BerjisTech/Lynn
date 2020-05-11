@@ -30,7 +30,7 @@ public class FeedActivity extends AppCompatActivity {
     RecyclerView postsRecycler;
     NestedScrollView nestedScroll;
     ImageView modelImage;
-    EmojiTextView modelDescription, modelName;
+    EmojiTextView modelDescription, modelName, pageTitle;
 
     FirebaseAuth mAuth;
     DatabaseReference dbRef;
@@ -50,6 +50,7 @@ public class FeedActivity extends AppCompatActivity {
         chats = findViewById(R.id.chats);
         profile = findViewById(R.id.profile);
         camera = findViewById(R.id.camera);
+        pageTitle = findViewById(R.id.pageTitle);
         notifications = findViewById(R.id.notifications);
         postsRecycler = findViewById(R.id.postsRecycler);
         nestedScroll = findViewById(R.id.nestedScroll);
@@ -185,9 +186,10 @@ public class FeedActivity extends AppCompatActivity {
                 }
                 if (!username.equals("")) {
                     modelName.setText(username);
+                    pageTitle.setText(username);
                 }
                 if (!description.equals("")) {
-                    modelDescription.setText(username);
+                    modelDescription.setText(description);
                 }
             }
 
