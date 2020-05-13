@@ -2,8 +2,8 @@ package tech.berjis.lynn;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -54,14 +53,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         final Chat ld = listData.get(position);
 
         hideViews(ld, holder, position);
-        if (!ld.isDelete()){
-            if (ld.getSender().equals(UID)) {
-                loadSenderView(ld, holder);
-            }
-            if (ld.getReceiver().equals(UID)) {
-                loadReceiverView(ld, holder);
-            }
-            if (ld.getType().equals("photo")) {
+        if (ld.getSender().equals(UID)) {
+            loadSenderView(ld, holder);
+        }
+        if (ld.getReceiver().equals(UID)) {
+            loadReceiverView(ld, holder);
+        }
+        if (ld.getType().equals("photo")) {
+            if (!ld.isDelete()) {
                 holder.senderImageCard.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -99,9 +98,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        CardView receiverImageCard, senderImageCard;
-        ImageView receiverChatImage, senderChatImage;
-        EmojiTextView receiverChatText, senderChatText;
+        EmojiTextView receiverChatText, senderChatText, receiverImageCard, senderImageCard;
         TextView receiverChatTime, senderChatTime;
         View mView;
         Context vContext;
@@ -109,11 +106,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             receiverImageCard = itemView.findViewById(R.id.receiverImageCard);
-            receiverChatImage = itemView.findViewById(R.id.receiverChatImage);
             receiverChatText = itemView.findViewById(R.id.receiverChatText);
             receiverChatTime = itemView.findViewById(R.id.receiverChatTime);
             senderImageCard = itemView.findViewById(R.id.senderImageCard);
-            senderChatImage = itemView.findViewById(R.id.senderChatImage);
             senderChatText = itemView.findViewById(R.id.senderChatText);
             senderChatTime = itemView.findViewById(R.id.senderChatTime);
             mView = itemView;
@@ -175,23 +170,24 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         popup.show();
     }
 
+
     private void hideViews(final Chat ld, final ViewHolder holder, final int position) {
 
         holder.receiverImageCard.setVisibility(View.GONE);
-        holder.receiverChatImage.setVisibility(View.GONE);
         holder.receiverChatText.setVisibility(View.GONE);
         holder.receiverChatTime.setVisibility(View.GONE);
         holder.senderImageCard.setVisibility(View.GONE);
-        holder.senderChatImage.setVisibility(View.GONE);
         holder.senderChatText.setVisibility(View.GONE);
         holder.senderChatTime.setVisibility(View.GONE);
-        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                longClickListener(holder, position, ld);
-                return false;
-            }
-        });
+        if (!ld.isDelete()) {
+            holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    longClickListener(holder, position, ld);
+                    return false;
+                }
+            });
+        }
     }
 
     private void loadSenderView(Chat ld, ViewHolder holder) {
@@ -208,6 +204,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         }
         if (ld.getType().equals("photo")) {
             loadSenderImage(ld, holder);
+        }
+
+        if(ld.isDelete()){
+            holder.mView.setAlpha(0.5f);
         }
     }
 
@@ -230,24 +230,43 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private void loadSenderText(Chat ld, ViewHolder holder) {
         holder.senderChatText.setVisibility(View.VISIBLE);
-        holder.senderChatText.setText(ld.getText());
+
+        if (ld.isDelete()) {
+            holder.senderChatText.setText("Deleted message");
+            holder.senderChatText.setTypeface(null, Typeface.ITALIC);
+        } else {
+            holder.senderChatText.setText(ld.getText());
+        }
     }
 
     private void loadSenderImage(Chat ld, ViewHolder holder) {
         holder.senderImageCard.setVisibility(View.VISIBLE);
-        holder.senderChatImage.setVisibility(View.VISIBLE);
-        Picasso.get().load(ld.getText()).into(holder.senderChatImage);
+        if (ld.isDelete()) {
+            holder.senderImageCard.setText("Deleted message");
+            holder.senderImageCard.setTypeface(null, Typeface.ITALIC);
+        } else {
+            holder.senderImageCard.setText("Image \uD83D\uDCF7\uD83C\uDF51\uD83E\uDDD6");
+        }
     }
 
     private void loadReceiverText(Chat ld, ViewHolder holder) {
         holder.receiverChatText.setVisibility(View.VISIBLE);
-        holder.receiverChatText.setText(ld.getText());
+        if (ld.isDelete()) {
+            holder.receiverChatText.setText("Deleted message");
+            holder.receiverChatText.setTypeface(null, Typeface.ITALIC);
+        } else {
+            holder.receiverChatText.setText(ld.getText());
+        }
     }
 
     private void loadReceiverImage(Chat ld, ViewHolder holder) {
         holder.receiverImageCard.setVisibility(View.VISIBLE);
-        holder.receiverChatImage.setVisibility(View.VISIBLE);
-        Picasso.get().load(ld.getText()).into(holder.receiverChatImage);
+        if (ld.isDelete()) {
+            holder.receiverImageCard.setText("Deleted message");
+            holder.receiverImageCard.setTypeface(null, Typeface.ITALIC);
+        } else {
+            holder.receiverImageCard.setText("Image \uD83D\uDCF7\uD83C\uDF51\uD83E\uDDD6");
+        }
     }
 
     private void viewGallery(Chat ld, ViewHolder holder) {

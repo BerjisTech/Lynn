@@ -38,6 +38,7 @@ import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -52,8 +53,8 @@ public class DMActivity extends AppCompatActivity {
     Uri filePath;
     String UID, receiver_chat_id, sender_chat_id, model;
 
-    static List<Chat> listData;
-    static ChatAdapter chatAdapter;
+    List<Chat> listData;
+    ChatAdapter chatAdapter;
 
     ImageView back, send;
     EmojiTextView userName;
@@ -73,6 +74,8 @@ public class DMActivity extends AppCompatActivity {
         storageReference = FirebaseStorage.getInstance().getReference();
         UID = mAuth.getCurrentUser().getUid();
         dbRef.keepSynced(true);
+
+        listData = new ArrayList<>();
 
         back = findViewById(R.id.back);
         userName = findViewById(R.id.userName);
@@ -110,7 +113,6 @@ public class DMActivity extends AppCompatActivity {
         });
         getModel();
 
-        listData = new ArrayList<>();
         chatRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         chatAdapter = new ChatAdapter(this, listData);
         chatRecycler.setAdapter(chatAdapter);
@@ -294,6 +296,8 @@ public class DMActivity extends AppCompatActivity {
     }
 
     private void loadChats() {
+        listData.clear();
+
         dbRef.child("Chats").child(UID).child(model).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -308,7 +312,7 @@ public class DMActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                loadChats();
             }
 
             @Override
@@ -334,17 +338,12 @@ public class DMActivity extends AppCompatActivity {
 
     static void deleteChatForMe(ChatAdapter.ViewHolder holder, Chat ld, int position) {
         dbRef.child("Chats").child(ld.getSender()).child(ld.getReceiver()).child(ld.getSender_chat_id()).child("delete").setValue(true);
-        listData.remove(position);
-        holder.mView.setVisibility(View.GONE);
-        chatAdapter.notifyDataSetChanged();
     }
 
     static void deleteChatForAll(ChatAdapter.ViewHolder holder, Chat ld, int position) {
         dbRef.child("Chats").child(ld.getSender()).child(ld.getReceiver()).child(ld.getSender_chat_id()).child("delete").setValue(true);
         dbRef.child("Chats").child(ld.getReceiver()).child(ld.getSender()).child(ld.getReceiver_chat_id()).child("delete").setValue(true);
-        listData.remove(position);
-        holder.mView.setVisibility(View.GONE);
-        chatAdapter.notifyDataSetChanged();
+
     }
 
     static void manageSelection(ChatAdapter.ViewHolder holder, Chat ld, int position) {

@@ -15,6 +15,7 @@
         android:layout_marginBottom="20dp"
         android:background="@drawable/recyclerview_background"
         android:paddingTop="60dp"
+        app:stackFromEnd="true"
         app:layout_constraintBottom_toTopOf="@id/send_text_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
