@@ -287,7 +287,7 @@ public class DMActivity extends AppCompatActivity {
         }
     }
 
-    private void loadChats(){
+    private void loadChats() {
         dbRef.child("Chats").child(UID).child(model).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -320,5 +320,13 @@ public class DMActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    static void replyTo(ChatAdapter.ViewHolder holder, Chat ld, int position, String chat_id) {
+
+    }
+
+    static void manageSelection(ChatAdapter.ViewHolder holder, Chat ld, int position, String chat_id) {
+
     }
 }

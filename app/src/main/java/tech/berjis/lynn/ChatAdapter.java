@@ -1,12 +1,15 @@
 package tech.berjis.lynn;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> implements View.OnCreateContextMenuListener {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private Context mContext;
     private List<Chat> listData;
@@ -47,12 +50,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Chat ld = listData.get(position);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        final Chat ld = listData.get(position);
 
         hideViews(ld, holder);
-
-        holder.mView.setOnCreateContextMenuListener(this);
 
         if (ld.getSender().equals(UID)) {
             loadSenderView(ld, holder);
@@ -60,30 +61,54 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         if (ld.getReceiver().equals(UID)) {
             loadReceiverView(ld, holder);
         }
+
+        if (ld.getType().equals("photo")) {
+            holder.senderImageCard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewGallery(ld, holder);
+                }
+            });
+            holder.receiverImageCard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewGallery(ld, holder);
+                }
+            });
+        }
+
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                PopupMenu popup = new PopupMenu(mContext, holder.mView);
+                //inflating menu from xml resource
+                popup.inflate(R.menu.chat_options_menu);
+                //adding click listener
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.delete_chat:
+                                itemSelection(holder, "delete", position, ld);
+                                return true;
+                            case R.id.reply_chat:
+                                itemSelection(holder, "reply", position, ld);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+                //displaying the popup
+                popup.show();
+                return false;
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return listData.size();
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        menu.add(0, v.getId(), 0, "Delete")
-                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Toast.makeText(mContext, "Deleted", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-        menu.add(0, v.getId(), 0, "Reply")
-                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                return false;
-            }
-        });
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -93,6 +118,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         EmojiTextView receiverChatText, senderChatText;
         TextView receiverChatTime, senderChatTime;
         View mView;
+        Context vContext;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -105,8 +131,43 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
             senderChatText = itemView.findViewById(R.id.senderChatText);
             senderChatTime = itemView.findViewById(R.id.senderChatTime);
             mView = itemView;
+            vContext = itemView.getContext();
         }
     }
+
+    private void itemSelection(ViewHolder holder, String action, int position, Chat ld) {
+        // Retrieving the item
+
+        if (position != RecyclerView.NO_POSITION) {
+            if (action.equals("delete")) {
+                // Add clicked item to the selected ones
+                DMActivity.manageSelection(holder, ld, position, ld.getChat_id());
+
+                // Visually highlighting the ImageView
+                holder.mView.setVisibility(View.GONE);
+            } else {
+                // Remove clicked item from the selected ones
+                DMActivity.manageSelection(ld, position, ld.getChat_id());
+
+                // Removing the visual highlights on the ImageView
+                DMActivity.replyTo(holder, ld, position, ld.getChat_id());
+            }
+        }
+    }
+
+    /* The method for managing the long click on an image.
+    public boolean onLongClick(View view) {
+
+        int position = getAdapterPosition();
+        if (position != RecyclerView.NO_POSITION) {
+            Intent intent = new Intent(mContext, DMActivity.class);
+            intent.putExtra("KEY4URL", position);
+            mContext.startActivity(intent);
+        }
+
+        // return true to indicate that the click was handled (if you return false onClick will be triggered too)
+        return true;
+    }*/
 
     private void hideViews(Chat ld, ViewHolder holder) {
         holder.receiverImageCard.setVisibility(View.GONE);
@@ -173,5 +234,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> im
         holder.receiverImageCard.setVisibility(View.VISIBLE);
         holder.receiverChatImage.setVisibility(View.VISIBLE);
         Picasso.get().load(ld.getText()).into(holder.receiverChatImage);
+    }
+
+    private void viewGallery(Chat ld, ViewHolder holder) {
+        Intent imageIntent = new Intent(mContext, ChatGallery.class);
+        Bundle imageBundle = new Bundle();
+        imageBundle.putString("chat_id", ld.getChat_id());
+        imageBundle.putString("sender", ld.getSender());
+        imageBundle.putString("receiver", ld.getReceiver());
+        imageIntent.putExtras(imageBundle);
+        mContext.startActivity(imageIntent);
     }
 }

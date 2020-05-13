@@ -24,7 +24,8 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar">
-        <activity android:name=".ModelsActivity"></activity>
+        <activity android:name=".ChatGallery"></activity>
+        <activity android:name=".ModelsActivity" />
         <activity
             android:name=".FullScreenGallery"
             android:screenOrientation="portrait"
