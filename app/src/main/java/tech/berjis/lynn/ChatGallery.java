@@ -72,27 +72,30 @@ public class ChatGallery extends AppCompatActivity {
     private void loadImageData() {
         Intent imageIntent = getIntent();
         Bundle imageBundle = imageIntent.getExtras();
-        String chat_id = imageBundle.getString("chat_id");
+        String sender_chat_id = imageBundle.getString("sender_chat_id");
+        String receiver_chat_id = imageBundle.getString("receiver_chat_id");
         String sender = imageBundle.getString("sender");
         String receiver = imageBundle.getString("receiver");
 
         loadReceiver(receiver);
-        loadImages(chat_id, sender, receiver);
+        loadImages(sender_chat_id, sender, receiver);
     }
 
-    private void loadImages(final String chat_id, final String sender, final String receiver) {
+    private void loadImages(final String sender_chat_id, final String sender, final String receiver) {
         imageList.clear();
-        dbRef.child("Chats").child(receiver).child(sender).orderByChild("type").equalTo("photo").addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("Chats").child(sender).child(receiver).orderByChild("type").equalTo("photo").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     int index = 0, offset = 1, count = 0;
                     for (DataSnapshot imagesSnapshot : dataSnapshot.getChildren()) {
-                        String image = imagesSnapshot.child("text").getValue().toString();
-                        imageList.add(new ImageList(image, chat_id, receiver));
-                        count = count + offset;
-                        if (imagesSnapshot.child("chat_id").getValue().toString().equals(chat_id)) {
-                            index = count - 1;
+                        if (imagesSnapshot.child("delete").getValue().toString().equals("false")) {
+                            String image = imagesSnapshot.child("text").getValue().toString();
+                            imageList.add(new ImageList(image, sender_chat_id, receiver));
+                            count = count + offset;
+                            if (imagesSnapshot.child("receiver_chat_id").getValue().toString().equals(sender_chat_id)) {
+                                index = count - 1;
+                            }
                         }
                     }
                     imagePagerAdapter = new ImagePagerAdapter(ChatGallery.this, imageList, "gallery");

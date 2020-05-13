@@ -2,21 +2,22 @@ package tech.berjis.lynn;
 
 public class Chat {
     private long time;
-    private boolean read;
-    private String chat_id, sender, receiver, text, type;
+    private boolean read, delete;
+    private String sender_chat_id, receiver_chat_id, sender, receiver, text, type;
 
-    public Chat(long time, boolean read, String chat_id, String sender, String receiver, String text, String type) {
+    public Chat(long time, boolean read, boolean delete, String sender_chat_id, String receiver_chat_id, String sender, String receiver, String text, String type) {
         this.time = time;
         this.read = read;
-        this.chat_id = chat_id;
+        this.delete = delete;
+        this.sender_chat_id = sender_chat_id;
+        this.receiver_chat_id = receiver_chat_id;
         this.sender = sender;
         this.receiver = receiver;
         this.text = text;
         this.type = type;
     }
 
-    public Chat() {
-    }
+    public Chat(){}
 
     public long getTime() {
         return time;
@@ -34,12 +35,28 @@ public class Chat {
         this.read = read;
     }
 
-    public String getChat_id() {
-        return chat_id;
+    public boolean isDelete() {
+        return delete;
     }
 
-    public void setChat_id(String chat_id) {
-        this.chat_id = chat_id;
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
+    public String getSender_chat_id() {
+        return sender_chat_id;
+    }
+
+    public void setSender_chat_id(String sender_chat_id) {
+        this.sender_chat_id = sender_chat_id;
+    }
+
+    public String getReceiver_chat_id() {
+        return receiver_chat_id;
+    }
+
+    public void setReceiver_chat_id(String receiver_chat_id) {
+        this.receiver_chat_id = receiver_chat_id;
     }
 
     public String getSender() {

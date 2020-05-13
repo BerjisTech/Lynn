@@ -47,13 +47,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class DMActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
-    DatabaseReference dbRef, senderRef, receiverRef;
+    static DatabaseReference dbRef, senderRef, receiverRef;
     StorageReference storageReference;
     Uri filePath;
-    String UID, chat_id, model;
+    String UID, receiver_chat_id, sender_chat_id, model;
 
-    List<Chat> listData;
-    ChatAdapter chatAdapter;
+    static List<Chat> listData;
+    static ChatAdapter chatAdapter;
 
     ImageView back, send;
     EmojiTextView userName;
@@ -121,6 +121,12 @@ public class DMActivity extends AppCompatActivity {
         Intent modelIntent = getIntent();
         Bundle modelBundle = modelIntent.getExtras();
         model = modelBundle.getString("model");
+
+        receiverRef = dbRef.child("Chats").child(model).child(UID).push();
+        receiver_chat_id = receiverRef.getKey();
+        senderRef = dbRef.child("Chats").child(UID).child(model).push();
+        sender_chat_id = senderRef.getKey();
+
         loadModelData(model);
         loadChats();
         btn_link.setOnClickListener(new View.OnClickListener() {
@@ -175,8 +181,6 @@ public class DMActivity extends AppCompatActivity {
     }
 
     private void postSenderChat(String text, String type) {
-        senderRef = dbRef.child("Chats").child(UID).child(model).push();
-        chat_id = senderRef.getKey();
 
         long unixTime = System.currentTimeMillis() / 1000L;
 
@@ -187,16 +191,16 @@ public class DMActivity extends AppCompatActivity {
         chatHash.put("time", unixTime);
         chatHash.put("text", text);
         chatHash.put("type", type);
-        chatHash.put("chat_id", chat_id);
+        chatHash.put("receiver_chat_id", receiver_chat_id);
+        chatHash.put("sender_chat_id", sender_chat_id);
         chatHash.put("read", false);
+        chatHash.put("delete", false);
 
         senderRef.updateChildren(chatHash);
         dbRef.child("ChatsMetaData").child(UID).child(model).child("last_update").setValue(unixTime);
     }
 
     private void postReceiverChat(String text, String type) {
-        receiverRef = dbRef.child("Chats").child(model).child(UID).push();
-        chat_id = receiverRef.getKey();
 
         long unixTime = System.currentTimeMillis() / 1000L;
 
@@ -207,8 +211,10 @@ public class DMActivity extends AppCompatActivity {
         chatHash.put("time", unixTime);
         chatHash.put("text", text);
         chatHash.put("type", type);
-        chatHash.put("chat_id", chat_id);
+        chatHash.put("receiver_chat_id", receiver_chat_id);
+        chatHash.put("sender_chat_id", sender_chat_id);
         chatHash.put("read", false);
+        chatHash.put("delete", false);
 
         receiverRef.updateChildren(chatHash);
         dbRef.child("ChatsMetaData").child(model).child(UID).child("last_update").setValue(unixTime);
@@ -322,11 +328,26 @@ public class DMActivity extends AppCompatActivity {
         });
     }
 
-    static void replyTo(ChatAdapter.ViewHolder holder, Chat ld, int position, String chat_id) {
+    static void replyTo(ChatAdapter.ViewHolder holder, Chat ld, int position) {
 
     }
 
-    static void manageSelection(ChatAdapter.ViewHolder holder, Chat ld, int position, String chat_id) {
+    static void deleteChatForMe(ChatAdapter.ViewHolder holder, Chat ld, int position) {
+        dbRef.child("Chats").child(ld.getSender()).child(ld.getReceiver()).child(ld.getSender_chat_id()).child("delete").setValue(true);
+        listData.remove(position);
+        holder.mView.setVisibility(View.GONE);
+        chatAdapter.notifyDataSetChanged();
+    }
+
+    static void deleteChatForAll(ChatAdapter.ViewHolder holder, Chat ld, int position) {
+        dbRef.child("Chats").child(ld.getSender()).child(ld.getReceiver()).child(ld.getSender_chat_id()).child("delete").setValue(true);
+        dbRef.child("Chats").child(ld.getReceiver()).child(ld.getSender()).child(ld.getReceiver_chat_id()).child("delete").setValue(true);
+        listData.remove(position);
+        holder.mView.setVisibility(View.GONE);
+        chatAdapter.notifyDataSetChanged();
+    }
+
+    static void manageSelection(ChatAdapter.ViewHolder holder, Chat ld, int position) {
 
     }
 }

@@ -53,57 +53,43 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Chat ld = listData.get(position);
 
-        hideViews(ld, holder);
-
-        if (ld.getSender().equals(UID)) {
-            loadSenderView(ld, holder);
-        }
-        if (ld.getReceiver().equals(UID)) {
-            loadReceiverView(ld, holder);
-        }
-
-        if (ld.getType().equals("photo")) {
-            holder.senderImageCard.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    viewGallery(ld, holder);
-                }
-            });
-            holder.receiverImageCard.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    viewGallery(ld, holder);
-                }
-            });
-        }
-
-        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                PopupMenu popup = new PopupMenu(mContext, holder.mView);
-                //inflating menu from xml resource
-                popup.inflate(R.menu.chat_options_menu);
-                //adding click listener
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        hideViews(ld, holder, position);
+        if (!ld.isDelete()){
+            if (ld.getSender().equals(UID)) {
+                loadSenderView(ld, holder);
+            }
+            if (ld.getReceiver().equals(UID)) {
+                loadReceiverView(ld, holder);
+            }
+            if (ld.getType().equals("photo")) {
+                holder.senderImageCard.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.delete_chat:
-                                itemSelection(holder, "delete", position, ld);
-                                return true;
-                            case R.id.reply_chat:
-                                itemSelection(holder, "reply", position, ld);
-                                return true;
-                            default:
-                                return false;
-                        }
+                    public void onClick(View v) {
+                        viewGallery(ld, holder);
                     }
                 });
-                //displaying the popup
-                popup.show();
-                return false;
+                holder.receiverImageCard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        viewGallery(ld, holder);
+                    }
+                });
+                holder.senderImageCard.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        longClickListener(holder, position, ld);
+                        return false;
+                    }
+                });
+                holder.receiverImageCard.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        longClickListener(holder, position, ld);
+                        return false;
+                    }
+                });
             }
-        });
+        }
     }
 
     @Override
@@ -135,25 +121,18 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         }
     }
 
-    private void itemSelection(ViewHolder holder, String action, int position, Chat ld) {
+    /*private void itemSelection(ViewHolder holder, String action, int position, Chat ld) {
         // Retrieving the item
 
         if (position != RecyclerView.NO_POSITION) {
             if (action.equals("delete")) {
-                // Add clicked item to the selected ones
-                DMActivity.manageSelection(holder, ld, position, ld.getChat_id());
-
-                // Visually highlighting the ImageView
-                holder.mView.setVisibility(View.GONE);
+                DMActivity.manageSelection(holder, ld, position);
             } else {
-                // Remove clicked item from the selected ones
-                DMActivity.manageSelection(ld, position, ld.getChat_id());
-
-                // Removing the visual highlights on the ImageView
-                DMActivity.replyTo(holder, ld, position, ld.getChat_id());
+                DMActivity.manageSelection(holder, ld, position);
+                DMActivity.replyTo(holder, ld, position);
             }
         }
-    }
+    }*/
 
     /* The method for managing the long click on an image.
     public boolean onLongClick(View view) {
@@ -169,7 +148,35 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         return true;
     }*/
 
-    private void hideViews(Chat ld, ViewHolder holder) {
+    private void longClickListener(final ViewHolder holder, final int position, final Chat ld) {
+        PopupMenu popup = new PopupMenu(mContext, holder.mView);
+        //inflating menu from xml resource
+        popup.inflate(R.menu.chat_options_menu);
+        //adding click listener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.delete_for_me:
+                        DMActivity.deleteChatForMe(holder, ld, position);
+                        return true;
+                    case R.id.delete_for_all:
+                        DMActivity.deleteChatForAll(holder, ld, position);
+                        return true;
+                    case R.id.reply_chat:
+                        DMActivity.replyTo(holder, ld, position);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        //displaying the popup
+        popup.show();
+    }
+
+    private void hideViews(final Chat ld, final ViewHolder holder, final int position) {
+
         holder.receiverImageCard.setVisibility(View.GONE);
         holder.receiverChatImage.setVisibility(View.GONE);
         holder.receiverChatText.setVisibility(View.GONE);
@@ -178,6 +185,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         holder.senderChatImage.setVisibility(View.GONE);
         holder.senderChatText.setVisibility(View.GONE);
         holder.senderChatTime.setVisibility(View.GONE);
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickListener(holder, position, ld);
+                return false;
+            }
+        });
     }
 
     private void loadSenderView(Chat ld, ViewHolder holder) {
@@ -239,10 +253,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private void viewGallery(Chat ld, ViewHolder holder) {
         Intent imageIntent = new Intent(mContext, ChatGallery.class);
         Bundle imageBundle = new Bundle();
-        imageBundle.putString("chat_id", ld.getChat_id());
+        imageBundle.putString("sender_chat_id", ld.getSender_chat_id());
+        imageBundle.putString("receiver_chat_id", ld.getReceiver_chat_id());
         imageBundle.putString("sender", ld.getSender());
         imageBundle.putString("receiver", ld.getReceiver());
         imageIntent.putExtras(imageBundle);
         mContext.startActivity(imageIntent);
     }
+
 }
