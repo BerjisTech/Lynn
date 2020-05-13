@@ -25,7 +25,7 @@ import java.util.List;
 
 public class ModelsActivity extends AppCompatActivity {
 
-    ImageView home, chats, profile, camera, notifications;
+    ImageView home, chats, profile, search, notifications;
 
     RecyclerView modelsRecycler;
     SwipeRefreshLayout modelsRefresh;
@@ -51,7 +51,7 @@ public class ModelsActivity extends AppCompatActivity {
         home = findViewById(R.id.home);
         chats = findViewById(R.id.chats);
         profile = findViewById(R.id.profile);
-        camera = findViewById(R.id.camera);
+        search = findViewById(R.id.search);
         notifications = findViewById(R.id.notifications);
         unloggedState();
 
@@ -97,7 +97,7 @@ public class ModelsActivity extends AppCompatActivity {
                     startActivity(new Intent(ModelsActivity.this, RegisterActivity.class));
                 }
             });
-            camera.setOnClickListener(new View.OnClickListener() {
+            search.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     startActivity(new Intent(ModelsActivity.this, RegisterActivity.class));
@@ -127,10 +127,10 @@ public class ModelsActivity extends AppCompatActivity {
                     startActivity(new Intent(ModelsActivity.this, ProfileActivity.class));
                 }
             });
-            camera.setOnClickListener(new View.OnClickListener() {
+            search.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(ModelsActivity.this, CreatePost.class));
+                    startActivity(new Intent(ModelsActivity.this, SearchActivity.class));
                 }
             });
             notifications.setOnClickListener(new View.OnClickListener() {
@@ -155,7 +155,7 @@ public class ModelsActivity extends AppCompatActivity {
                         }
                     }
                     Collections.reverse(modelsList);
-                    modelsAdapter = new ModelsAdapter(ModelsActivity.this, modelsList);
+                    modelsAdapter = new ModelsAdapter(ModelsActivity.this, modelsList, "feed");
                     modelsRecycler.setAdapter(modelsAdapter);
                 }
             }

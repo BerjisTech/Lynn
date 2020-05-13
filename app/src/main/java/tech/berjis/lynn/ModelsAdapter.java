@@ -20,16 +20,24 @@ public class ModelsAdapter extends RecyclerView.Adapter<ModelsAdapter.ViewHolder
 
     private List<Models> listData;
     private Context mContext;
+    private String view_type;
 
-    ModelsAdapter(Context mContext, List<Models> listData) {
+    ModelsAdapter(Context mContext, List<Models> listData, String view_type) {
         this.mContext = mContext;
         this.listData = listData;
+        this.view_type = view_type;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.models, parent, false);
+        View view = null;
+        if(view_type.equals("feed")){
+            view = LayoutInflater.from(mContext).inflate(R.layout.models, parent, false);
+        }
+        if (view_type.equals("search")){
+            view = LayoutInflater.from(mContext).inflate(R.layout.search, parent, false);
+        }
         return new ViewHolder(view);
     }
 
