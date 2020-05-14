@@ -36,7 +36,7 @@ public class SubscriptionActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     DatabaseReference dbRef, depositRef, transactionRef;
     String UID;
-    long amount = 50, nowUnix, expiryUnix;
+    long amount = 500, nowUnix, expiryUnix;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
