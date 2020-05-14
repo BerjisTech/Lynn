@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         // make the activity on full screen
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
 
         // ini views
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             userState();
                         }
-                    }, 3000);
+                    }, 1000);
         }
 
 

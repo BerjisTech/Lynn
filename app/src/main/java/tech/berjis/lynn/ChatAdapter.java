@@ -2,22 +2,22 @@ package tech.berjis.lynn;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.squareup.picasso.Picasso;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vanniktech.emoji.EmojiTextView;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -31,6 +31,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private Context mContext;
     private List<Chat> listData;
     private FirebaseAuth mAuth;
+    private DatabaseReference dbRef;
     private String UID;
 
     ChatAdapter(Context mContext, List<Chat> listData) {
@@ -43,6 +44,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         mAuth = FirebaseAuth.getInstance();
         UID = mAuth.getCurrentUser().getUid();
+        dbRef = FirebaseDatabase.getInstance().getReference();
 
         View view = LayoutInflater.from(mContext).inflate(R.layout.dm, parent, false);
         return new ViewHolder(view);
@@ -153,10 +155,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.delete_for_me:
-                        DMActivity.deleteChatForMe(holder, ld, position);
+                        deleteChatForMe(holder, ld, position);
                         return true;
                     case R.id.delete_for_all:
-                        DMActivity.deleteChatForAll(holder, ld, position);
+                        deleteChatForAll(holder, ld, position);
                         return true;
                     case R.id.reply_chat:
                         DMActivity.replyTo(holder, ld, position);
@@ -170,6 +172,31 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         popup.show();
     }
 
+    private void deleteChatForMe(ChatAdapter.ViewHolder holder, Chat ld, int position) {
+        dbRef.child("Chats").child(ld.getSender()).child(ld.getReceiver()).child(ld.getSender_chat_id()).child("delete").setValue(true);
+        holder.senderChatText.setText("Deleted message");
+        holder.senderChatText.setTypeface(null, Typeface.ITALIC);
+        holder.senderImageCard.setText("Deleted message");
+        holder.senderImageCard.setTypeface(null, Typeface.ITALIC);
+        holder.receiverChatText.setText("Deleted message");
+        holder.receiverChatText.setTypeface(null, Typeface.ITALIC);
+        holder.receiverImageCard.setText("Deleted message");
+        holder.receiverImageCard.setTypeface(null, Typeface.ITALIC);
+    }
+
+    private void deleteChatForAll(ChatAdapter.ViewHolder holder, Chat ld, int position) {
+        dbRef.child("Chats").child(ld.getSender()).child(ld.getReceiver()).child(ld.getSender_chat_id()).child("delete").setValue(true);
+        dbRef.child("Chats").child(ld.getReceiver()).child(ld.getSender()).child(ld.getReceiver_chat_id()).child("delete").setValue(true);
+
+        holder.senderChatText.setText("Deleted message");
+        holder.senderChatText.setTypeface(null, Typeface.ITALIC);
+        holder.senderImageCard.setText("Deleted message");
+        holder.senderImageCard.setTypeface(null, Typeface.ITALIC);
+        holder.receiverChatText.setText("Deleted message");
+        holder.receiverChatText.setTypeface(null, Typeface.ITALIC);
+        holder.receiverImageCard.setText("Deleted message");
+        holder.receiverImageCard.setTypeface(null, Typeface.ITALIC);
+    }
 
     private void hideViews(final Chat ld, final ViewHolder holder, final int position) {
 
@@ -206,7 +233,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             loadSenderImage(ld, holder);
         }
 
-        if(ld.isDelete()){
+        if (ld.isDelete()) {
             holder.mView.setAlpha(0.5f);
         }
     }

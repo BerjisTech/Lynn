@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +27,7 @@ import java.util.List;
 
 public class FeedActivity extends AppCompatActivity {
 
-    ImageView home, chats, profile, camera, notifications;
+    ImageView home, chats, profile;
     RecyclerView postsRecycler;
     NestedScrollView nestedScroll;
     ImageView modelImage;
@@ -41,6 +42,7 @@ public class FeedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_feed);
 
         mAuth = FirebaseAuth.getInstance();
@@ -49,9 +51,7 @@ public class FeedActivity extends AppCompatActivity {
         home = findViewById(R.id.home);
         chats = findViewById(R.id.chats);
         profile = findViewById(R.id.profile);
-        camera = findViewById(R.id.camera);
         pageTitle = findViewById(R.id.pageTitle);
-        notifications = findViewById(R.id.notifications);
         postsRecycler = findViewById(R.id.postsRecycler);
         nestedScroll = findViewById(R.id.nestedScroll);
         modelImage = findViewById(R.id.modelImage);
@@ -95,18 +95,6 @@ public class FeedActivity extends AppCompatActivity {
                     startActivity(new Intent(FeedActivity.this, RegisterActivity.class));
                 }
             });
-            camera.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(FeedActivity.this, RegisterActivity.class));
-                }
-            });
-            notifications.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(FeedActivity.this, RegisterActivity.class));
-                }
-            });
         } else {
             home.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -128,18 +116,6 @@ public class FeedActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     startActivity(new Intent(FeedActivity.this, ProfileActivity.class));
-                }
-            });
-            camera.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(FeedActivity.this, CreatePost.class));
-                }
-            });
-            notifications.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(FeedActivity.this, NotificationsActivity.class));
                 }
             });
         }

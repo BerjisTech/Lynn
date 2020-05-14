@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -19,8 +21,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class ModelsActivity extends AppCompatActivity {
@@ -34,14 +38,17 @@ public class ModelsActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     DatabaseReference dbRef;
+    String UID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_models);
 
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference();
+        UID = mAuth.getCurrentUser().getUid();
         dbRef.keepSynced(true);
 
         modelsRecycler = findViewById(R.id.modelsRecycler);
@@ -56,7 +63,8 @@ public class ModelsActivity extends AppCompatActivity {
         unloggedState();
 
         modelsRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        loadModels();
+
+        newUserState();
 
         modelsRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -157,6 +165,40 @@ public class ModelsActivity extends AppCompatActivity {
                     Collections.reverse(modelsList);
                     modelsAdapter = new ModelsAdapter(ModelsActivity.this, modelsList, "feed");
                     modelsRecycler.setAdapter(modelsAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void newUserState() {
+        dbRef.child("Users").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.child("first_name").exists() ||
+                        !dataSnapshot.child("last_name").exists() ||
+                        !dataSnapshot.child("user_name").exists()) {
+                    startActivity(new Intent(ModelsActivity.this, EditProfileActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                } else {
+                    if (!dataSnapshot.child("last_paid").exists()) {
+                        startActivity(new Intent(ModelsActivity.this, SubscriptionActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                    } else {
+                        long user_expiry = Long.parseLong(dataSnapshot.child("user_expiry").getValue().toString());
+
+                        Date now = new Date();
+
+                        long nowUnix = now.getTime() / 1000;
+
+                        if (nowUnix > user_expiry) {
+                            startActivity(new Intent(ModelsActivity.this, SubscriptionActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                        } else {
+                            loadModels();
+                        }
+                    }
                 }
             }
 

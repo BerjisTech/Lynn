@@ -63,7 +63,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ViewHolder> 
         dbRef.child("Users").child(ld).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("user_image").exists()) {
+                if (dataSnapshot.child("user_image").exists() && !dataSnapshot.child("user_image").getValue().toString().isEmpty()) {
                     Picasso.get().load(dataSnapshot.child("user_image").getValue().toString()).into(holder.userImage);
                 }
                 if (dataSnapshot.child("user_name").exists()) {

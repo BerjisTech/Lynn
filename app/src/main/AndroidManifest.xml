@@ -24,7 +24,8 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar">
-        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".SubscriptionActivity"></activity>
+        <activity android:name=".SearchActivity" />
         <activity android:name=".ChatGallery" />
         <activity android:name=".ModelsActivity" />
         <activity
