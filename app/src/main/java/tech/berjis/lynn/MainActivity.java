@@ -226,25 +226,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void userState() {
-        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-        dbRef.child("Users").child(UID).child("user_name").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Intent mainActivity = new Intent(getApplicationContext(), ModelsActivity.class);
-                    startActivity(mainActivity);
-                    finish();
-                } else {
-                    Intent mainActivity = new Intent(getApplicationContext(), EditProfileActivity.class);
-                    startActivity(mainActivity);
-                    finish();
+        if(mAuth.getCurrentUser() == null){
+            Intent mainActivity = new Intent(getApplicationContext(), RegisterActivity.class);
+            startActivity(mainActivity);
+        }else {
+            UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+            dbRef.child("Users").child(UID).child("user_name").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        Intent mainActivity = new Intent(getApplicationContext(), ModelsActivity.class);
+                        startActivity(mainActivity);
+                        finish();
+                    } else {
+                        Intent mainActivity = new Intent(getApplicationContext(), EditProfileActivity.class);
+                        startActivity(mainActivity);
+                        finish();
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
     }
 }
